@@ -7,11 +7,14 @@ server {
 
         root /home/kirill/workspace/auth-example;
 
+        location / {
+            try_files $uri /index.php$args;
+        }
+
         location ~ \.php$ {
                include snippets/fastcgi-php.conf;
-
                fastcgi_pass unix:/run/php/php7.2-fpm.sock;
-#               fastcgi_pass 127.0.0.1:9000;
+               fastcgi_param SCRIPT_FILENAME $document_root/index.php;
         }
 
 

@@ -6,7 +6,7 @@ $requestUri = $_SERVER["REQUEST_URI"];
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $scriptAssets = [];
 
-if (is_null($_SESSION["currentUser"]) && $requestUri != '/login') {
+if (is_null($_SESSION["currentUser"]) && $requestUri != '/login' && $requestUri != '/auth') {
     header("Location: /login");
     die();
 }
@@ -57,8 +57,8 @@ if ($requestUri == "/auth") {
     $password = filter_var($_POST['password'] ,FILTER_SANITIZE_STRING);
 
 
-    foreach ($users as $user) {
-        if ($user['login'] == $login && password_verify($password, $user['password'])) {
+    foreach (getUsers() as $user) {
+        if ($user['active'] && $user['login'] == $login && password_verify($password, $user['password'])) {
             $_SESSION["currentUser"] = $user;
         }
     }

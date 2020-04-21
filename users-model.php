@@ -7,9 +7,15 @@ define('USERS_FILE', "users-file.json");
 function createUser($login, $password) {
     $uuid = randomUuid();
     $users = getUsers();
-    $users[] = ["uuid" => $uuid, "login" => $login, "password" => $password];
+    $user = [
+        "uuid" => $uuid,
+        "login" => $login,
+        "password" => $password,
+        "active" => true
+    ];
+    $users[] = $user;
     file_put_contents(USERS_FILE, json_encode($users));
-    return $uuid;
+    return $user;
 }
 
 
@@ -47,4 +53,3 @@ function getUsers()  {
         throw new Exception("User file not found");
     }
 }
-

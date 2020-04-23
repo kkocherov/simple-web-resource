@@ -3,6 +3,11 @@
 session_start();
 
 $requestUri = $_SERVER["REQUEST_URI"];
+$requestUri = explode("?", $requestUri);
+$query_params = $requestUri[1];
+$_GET = [];
+parse_str($query_params, $_GET);
+$requestUri = $requestUri[0];
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $scriptAssets = [];
 

@@ -2,14 +2,20 @@
 
 include "users-model.php";
 
+function usersAddress($page, $limit) {
+    return "/users?".http_build_query(["page" => $page, "limit" => $limit]);
+}
+
 if ($requestUri == "/users") {
     $scriptAssets = ["/assets/js/users.js"];
 
-    $handleRequest = function() {
-        echo "
-    <a href=\"/users/create\" class=\"btn btn-success\">Create new User</a>
-    <div id='users-list'></div>
-";
+    $page = filter_var($_GET['page'], FILTER_VALIDATE_INT);
+    $limit = filter_var($_GET['limit'], FILTER_VALIDATE_INT);
+
+
+
+    $handleRequest = function() use ($page, $limit) {
+        include "templates/usersView.php";
     };
 
     include "layout.php";
@@ -74,7 +80,10 @@ if ($requestUri == "/api/users") {
     header('Content-Type: application/json');
 
     if ($requestMethod == "GET") {
-        echo json_encode(getUsers());
+        $limit = filter_var($_GET["limit"], FILTER_VALIDATE_INT);
+        $page = filter_var($_GET["page"], FILTER_VALIDATE_INT);
+
+        echo json_encode(getUsers($limit, $page));
         die();
     }
 
@@ -111,6 +120,15 @@ if (startsWith($requestUri, "/api/users/")) {
 
         $attributes = [];
 
+        if (!empty($_FILES["picture"])) {
+            $folder = '/home/kirill/workspace/auth-example/uploads';
+            $file_path = upload_image($_FILES["picture"], $folder);
+            $file_path_exploded = explode("/", $file_path);
+            $filename = $file_path_exploded[count($file_path_exploded) - 1];
+            $file_url = "http://pomidorki.ru/uploads/".$filename;
+            $attributes["image"] = $file_url;
+        }
+
         if (!empty($login)) {
             $attributes["login"] = $login;
         }
@@ -123,6 +141,7 @@ if (startsWith($requestUri, "/api/users/")) {
             $attributes["active"] = $isActive == 'true';
         }
 
+        var_dump($attributes);
         editUser($userUuid, $attributes);
         die();
     }

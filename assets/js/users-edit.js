@@ -29,16 +29,16 @@ function createUser(userAttributes) {
     });
 }
 
-$(form).on('submit', function(e) {
-    e.preventDefault();
-    let userAttributes = getUserFormData();
-    let userExists = $(form).data().userExists === 1;
-
-    if (userExists) {
-        editUser(userAttributes);
-    }
-    else {
-        createUser(userAttributes)
-    }
-});
+// $(form).on('submit', function(e) {
+//     e.preventDefault();
+//     let userAttributes = getUserFormData();
+//     let userExists = $(form).data().userExists === 1;
+//
+//     if (userExists) {
+//         editUser(userAttributes);
+//     }
+//     else {
+//         createUser(userAttributes)
+//     }
+// });
 

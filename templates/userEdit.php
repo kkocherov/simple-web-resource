@@ -2,7 +2,7 @@
     <h1>User</h1>
     <form
         method="post"
-        action="/api/users/<?= $user["uuid"] ?>"
+        action="/api/users<?= $userExists ?  "/".$user["uuid"] : "" ?>"
         id="user-edit-form"
         data-user-exists="<?php echo $userExists; ?>"
         enctype="multipart/form-data"

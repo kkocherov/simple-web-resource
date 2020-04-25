@@ -90,8 +90,14 @@ if ($requestUri == "/api/users") {
     if ($requestMethod == "POST") {
         $login = filter_var($_POST['login'] ,FILTER_SANITIZE_STRING);
         $password = filter_var($_POST['password'] ,FILTER_SANITIZE_STRING);
-        $password = password_hash($password, PASSWORD_BCRYPT);
-        echo json_encode(createUser($login, $password));
+
+        try {
+            $user = createUser($login, $password);
+            echo json_encode($user);
+        } catch (Exception $exception) {
+            echo $exception->getMessage();
+            handleCreate();
+        }
         die();
     }
 }
@@ -120,7 +126,7 @@ if (startsWith($requestUri, "/api/users/")) {
 
         $attributes = [];
 
-        if (!empty($_FILES["picture"])) {
+        if (!$_FILES["picture"]["error"] == UPLOAD_ERR_NO_FILE) {
             $folder = '/home/kirill/workspace/auth-example/uploads';
             $file_path = upload_image($_FILES["picture"], $folder);
             $file_path_exploded = explode("/", $file_path);
@@ -141,7 +147,6 @@ if (startsWith($requestUri, "/api/users/")) {
             $attributes["active"] = $isActive == 'true';
         }
 
-        var_dump($attributes);
         editUser($userUuid, $attributes);
         die();
     }

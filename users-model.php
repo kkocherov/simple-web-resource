@@ -6,13 +6,27 @@ define('USERS_FILE', "users-file.json");
 
 function createUser($login, $password) {
     $uuid = randomUuid();
+
+    if (mb_strlen($password) < 6) {
+        throw new Exception("invalid password");
+    }
+
+    $duplicates = array_filter(getUsers(), function ($user) use ($login) {
+        return $user["login"] == $login;
+    });
+
+    if (count($duplicates) > 0) {
+        throw new Exception("duplicate login");
+    }
+
     $users = getUsers();
     $user = [
         "uuid" => $uuid,
         "login" => $login,
-        "password" => $password,
+        "password" => password_hash($password, PASSWORD_BCRYPT),
         "active" => true
     ];
+
     $users[] = $user;
     file_put_contents(USERS_FILE, json_encode($users));
     return $user;
@@ -45,7 +59,7 @@ function getUser($uuid) {
     return null;
 }
 
-function getUsers($limit, $page)  {
+function getUsers($limit = PHP_INT_MAX, $page = 0)  {
     if (file_exists(USERS_FILE)) {
         $result = json_decode(file_get_contents(USERS_FILE), true);
         $result = array_slice($result, $page * $limit, $limit);

@@ -1,5 +1,12 @@
 {
-  "require": {
-    "ext-mbstring": "*"
-  }
+    "name": "kirill/auth-example",
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "you@example.com"
+        }
+    ],
+    "require": {
+      "ext-mbstring": "*"
+    }
 }

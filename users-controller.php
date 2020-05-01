@@ -9,10 +9,8 @@ function usersAddress($page, $limit) {
 if ($requestUri == "/users") {
     $scriptAssets = ["/assets/js/users.js"];
 
-    $page = filter_var($_GET['page'], FILTER_VALIDATE_INT);
-    $limit = filter_var($_GET['limit'], FILTER_VALIDATE_INT);
-
-
+    $page = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
+    $limit = filter_var($_GET['limit'] ?? 9, FILTER_VALIDATE_INT);
 
     $handleRequest = function() use ($page, $limit) {
         include "templates/usersView.php";

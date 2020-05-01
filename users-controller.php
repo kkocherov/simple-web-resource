@@ -125,7 +125,7 @@ if (startsWith($requestUri, "/api/users/")) {
         $attributes = [];
 
         if (!$_FILES["picture"]["error"] == UPLOAD_ERR_NO_FILE) {
-            $folder = '/home/kirill/workspace/auth-example/uploads';
+            $folder = $uploadFolder;
             $file_path = upload_image($_FILES["picture"], $folder);
             $file_path_exploded = explode("/", $file_path);
             $filename = $file_path_exploded[count($file_path_exploded) - 1];

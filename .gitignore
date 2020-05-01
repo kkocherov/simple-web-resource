@@ -1,4 +1,5 @@
 .idea
 uploads
+!uploads/.keep
 
 /vendor/

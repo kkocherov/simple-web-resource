@@ -2,7 +2,7 @@
 
 session_start();
 
-
+$serverName = $_SERVER["HTTP_HOST"];
 $documentRoot = $_SERVER["DOCUMENT_ROOT"];
 $uploadFolder = $documentRoot.'/uploads';
 $requestUri = $_SERVER["REQUEST_URI"];

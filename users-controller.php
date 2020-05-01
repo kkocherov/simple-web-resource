@@ -129,7 +129,7 @@ if (startsWith($requestUri, "/api/users/")) {
             $file_path = upload_image($_FILES["picture"], $folder);
             $file_path_exploded = explode("/", $file_path);
             $filename = $file_path_exploded[count($file_path_exploded) - 1];
-            $file_url = "http://pomidorki.ru/uploads/".$filename;
+            $file_url = "//$serverName/uploads/".$filename;
             $attributes["image"] = $file_url;
         }
 

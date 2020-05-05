@@ -17,6 +17,7 @@ if (is_null($_SESSION["currentUser"]) && $requestUri != '/login' && $requestUri 
 }
 
 include "users-controller.php";
+include "db.php";
 
 if ($requestUri == "/logout") {
     session_destroy();
@@ -57,16 +58,19 @@ if ($requestUri == "/") {
     die();
 }
 
+
 if ($requestUri == "/auth") {
     $login = filter_var($_POST['login'] ,FILTER_SANITIZE_STRING);
     $password = filter_var($_POST['password'] ,FILTER_SANITIZE_STRING);
 
+    $user = findUser($login);
 
-    foreach (getUsers() as $user) {
-        if ($user['active'] && $user['login'] == $login && password_verify($password, $user['password'])) {
-            $_SESSION["currentUser"] = $user;
-        }
+
+
+    if (!is_null($user) && $user['active'] && password_verify($password, $user['password'])) {
+        $_SESSION["currentUser"] = $user;
     }
+
     header("Location: /");
     die();
 }

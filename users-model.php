@@ -68,3 +68,14 @@ function getUsers($limit = PHP_INT_MAX, $page = 0)  {
         throw new Exception("User file not found");
     }
 }
+
+function findUser($login, $password) {
+    $pdo = getConnection();
+    $result = $pdo->query("select * from users where login = '$login' password = $password");
+    $user = $result->fetch();
+
+    if ($user === false)
+        return null;
+    else
+        return $user;
+}

@@ -20,7 +20,11 @@ function getConnection() {
         $pass = 'tomato';
 
         $dsn = "pgsql:host=$host;dbname=$db";
-        $pdo = new \PDO($dsn, $user, $pass, $options);
+        try {
+            $pdo = new \PDO($dsn, $user, $pass, $options);
+        } catch (PDOException $e) {
+            die("cant connect to the database");
+        }
     }
 
     return $pdo;

@@ -31,7 +31,7 @@ function handleView($user) {
 
 function handleEdit($user) {
     $scriptAssets = ['/assets/js/users-edit.js'];
-    $userExists = isset($user["uuid"]);
+    $userExists = isset($user["id"]);
     $handleRequest = function() use ($user, $userExists) {
         include "templates/userEdit.php";
     };
@@ -43,7 +43,7 @@ function handleEdit($user) {
 function handleCreate() {
     $scriptAssets = ['/assets/js/users-edit.js'];
     $user = ["active" => true];
-    $userExists = isset($user["uuid"]);
+    $userExists = isset($user["id"]);
 
     $handleRequest = function() use ($user, $userExists) {
         include "templates/userEdit.php";
@@ -59,8 +59,8 @@ if ($requestUri == "/users/create") {
 
 if (startsWith($requestUri, "/users/")) {
     $path = explode("/", $requestUri);
-    $userUuid = $path[2];
-    $user = getUser($userUuid);
+    $userId = $path[2];
+    $user = getUser($userId);
 
     if (is_null($user)) {
         http_response_code(404);
@@ -92,9 +92,10 @@ if ($requestUri == "/api/users") {
         try {
             $user = createUser($login, $password);
             echo json_encode($user);
-        } catch (Exception $exception) {
-            echo $exception->getMessage();
-            handleCreate();
+        } catch (LengthException $exception) {
+            die("Слишком короткий пароль");
+        } catch (InvalidArgumentException $exception) {
+            die("Логин уже существует");
         }
         die();
     }
@@ -104,8 +105,8 @@ if (startsWith($requestUri, "/api/users/")) {
     header('Content-Type: application/json');
 
     $path = explode("/", $requestUri);
-    $userUuid = $path[count($path) - 1];
-    $user = getUser($userUuid);
+    $userId = filter_var($path[count($path) - 1], FILTER_VALIDATE_INT);
+    $user = getUser($userId);
 
     if (is_null($user)) {
         http_response_code(404);
@@ -113,7 +114,7 @@ if (startsWith($requestUri, "/api/users/")) {
     }
 
     if ($requestMethod == "GET") {
-        echo json_encode(getUser($userUuid));
+        echo json_encode(getUser($userId));
         die();
     }
 
@@ -138,19 +139,27 @@ if (startsWith($requestUri, "/api/users/")) {
         }
 
         if (!empty($password)) {
-            $attributes["password"] = password_hash($password, PASSWORD_BCRYPT);
+            $attributes["password"] = $password;
         }
 
-        if (!empty($isActive)) {
-            $attributes["active"] = $isActive == 'true';
+        $attributes["active"] = $isActive == 'on';
+
+
+        try {
+            editUser($user, $attributes);
+        } catch (LengthException $exception) {
+            die("Слишком короткий пароль");
+        } catch (InvalidArgumentException $exception) {
+            die("Логин уже существует");
+        } catch (Exception $exception) {
+            die("Что то пошло не так, свяжитесь с нашей тех поддержкой");
         }
 
-        editUser($userUuid, $attributes);
         die();
     }
 
     if ($requestMethod == "DELETE") {
-        deleteUser($userUuid);
+        deleteUser($userId);
         die();
     }
 }

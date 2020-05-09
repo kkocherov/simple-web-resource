@@ -16,7 +16,7 @@ function usersViewHTML(users) {
                 <div class="card-body">
                     <h5 class="card-title">${user.login}</h5>
                     <p class="card-text">user info</p>
-                    <a href="/users/${user.uuid}" class="btn btn-success">View</a>
+                    <a href="/users/${user.id}" class="btn btn-success">View</a>
                 </div>
             </div>`;
     });

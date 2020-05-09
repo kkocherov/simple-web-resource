@@ -2,7 +2,7 @@
     <h1>User</h1>
     <form
         method="post"
-        action="/api/users<?= $userExists ?  "/".$user["uuid"] : "" ?>"
+        action="/api/users<?= $userExists ?  "/".$user["id"] : "" ?>"
         id="user-edit-form"
         data-user-exists="<?php echo $userExists; ?>"
         enctype="multipart/form-data"
@@ -10,8 +10,8 @@
 
         <?php if ($userExists): ?>
         <div class="form-group">
-            <label for="user-uuid">uuid</label>
-            <input type="text" name="uuid" class="form-control" disabled id="user-uuid" value="<?php echo $user["uuid"]; ?>">
+            <label for="user-id">id</label>
+            <input type="text" name="id" class="form-control" disabled id="user-id" value="<?php echo $user["id"]; ?>">
         </div>
         <?php endif; ?>
 

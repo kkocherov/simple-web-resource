@@ -2,76 +2,76 @@
 
 include "util.php";
 
-define('USERS_FILE', "users-file.json");
-
+/**
+ * @param $login
+ * @param $password
+ * @return mixed
+ * @throws LengthException password length < 6
+ * @throws InvalidArgumentException login is not unique
+ */
 function createUser($login, $password) {
-    $uuid = randomUuid();
-
     if (mb_strlen($password) < 6) {
-        throw new Exception("invalid password");
+        throw new LengthException("invalid password");
     }
 
-    $duplicates = array_filter(getUsers(), function ($user) use ($login) {
-        return $user["login"] == $login;
-    });
+    $pdo = getConnection();
+    $statement = $pdo->prepare("insert into users(login, password) values(?, ?) returning *");
 
-    if (count($duplicates) > 0) {
-        throw new Exception("duplicate login");
+    try {
+        $statement->execute([$login, password_hash($password, PASSWORD_BCRYPT)]);
+        return $statement->fetch();
+    } catch (PDOException $exception) {
+        throw new InvalidArgumentException("duplicate login");
     }
-
-    $users = getUsers();
-    $user = [
-        "uuid" => $uuid,
-        "login" => $login,
-        "password" => password_hash($password, PASSWORD_BCRYPT),
-        "active" => true
-    ];
-
-    $users[] = $user;
-    file_put_contents(USERS_FILE, json_encode($users));
-    return $user;
 }
-
 
 function deleteUser($uuid) {
     editUser($uuid, ["active" => false]);
 }
 
-function editUser($uuid, $attributes) {
-    $users = array_map(function($user) use ($uuid, $attributes) {
-        if ($user["uuid"] == $uuid) {
-            return array_merge($user, $attributes);
-        } else {
-            return $user;
-        }
-    }, getUsers());
-
-    file_put_contents(USERS_FILE, json_encode($users));
-}
-
-function getUser($uuid) {
-    foreach (getUsers() as $user) {
-        if ($user["uuid"] == $uuid) {
-            return $user;
-        }
+/**
+ * @param $user
+ * @param $attributes
+ * @throws LengthException password length < 6
+ * @throws InvalidArgumentException login is not unique
+ */
+function editUser($user, $attributes) {
+    if (!is_null($attributes['password']) && mb_strlen($attributes['password']) < 6) {
+        throw new LengthException("invalid password");
     }
 
-    return null;
+    $pdo = getConnection();
+    $newUser = array_merge($user, $attributes);
+    $password = password_hash($newUser['password'], PASSWORD_BCRYPT);
+    $statement = $pdo->prepare("update users set login = ?, password = ?, active = ?, image = ? where id = ?");
+    $newUser['active'] = $newUser['active'] ?  'true' : 'false';
+
+    try {
+        $statement->execute([$newUser['login'], $password, $newUser['active'], $newUser['image'], $user["id"]]);
+    } catch (PDOException $exception) {
+        if ($exception->errorInfo[0] === 23505)
+            throw new InvalidArgumentException("duplicate login");
+        throw $exception;
+    }
+}
+
+function getUser($id) {
+    $pdo = getConnection();
+    $statement = $pdo->prepare("select * from users where id = ?");
+    $statement->execute([$id]);
+    return $statement->fetch();
 }
 
 function getUsers($limit = PHP_INT_MAX, $page = 0)  {
-    if (file_exists(USERS_FILE)) {
-        $result = json_decode(file_get_contents(USERS_FILE), true);
-        $result = array_slice($result, $page * $limit, $limit);
-        return $result;
-    } else {
-        throw new Exception("User file not found");
-    }
+    $pdo = getConnection();
+    $statement = $pdo->prepare("select * from users limit ? offset ?");
+    $statement->execute([$limit, $page * $limit]);
+    return $statement->fetchAll();
 }
 
-function findUser($login, $password) {
+function findUser($login) {
     $pdo = getConnection();
-    $result = $pdo->query("select * from users where login = '$login' password = $password");
+    $result = $pdo->query("select * from users where login = '$login'");
     $user = $result->fetch();
 
     if ($user === false)

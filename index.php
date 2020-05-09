@@ -16,8 +16,8 @@ if (is_null($_SESSION["currentUser"]) && $requestUri != '/login' && $requestUri 
     die();
 }
 
-include "users-controller.php";
 include "db.php";
+include "users-controller.php";
 
 if ($requestUri == "/logout") {
     session_destroy();
@@ -64,8 +64,6 @@ if ($requestUri == "/auth") {
     $password = filter_var($_POST['password'] ,FILTER_SANITIZE_STRING);
 
     $user = findUser($login);
-
-
 
     if (!is_null($user) && $user['active'] && password_verify($password, $user['password'])) {
         $_SESSION["currentUser"] = $user;

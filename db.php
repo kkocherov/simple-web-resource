@@ -14,22 +14,26 @@ function getConnection() {
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
         ];
 
-        $host = 'localhost';
-        $db   = 'pomidorki';
-        $user = 'tomato';
-        $pass = 'tomato';
+        $dsn = getenv('DATABASE_URL');
+        $database_connection = parse_url($dsn);
 
-        $dsn = "pgsql:host=$host;dbname=$db";
+        $host = $database_connection['host'];
+        $port = $database_connection['port'];
+        $user = $database_connection['user'];
+        $pass = $database_connection['pass'];
+        $database = ltrim($database_connection['path'], '/');
+
         try {
-            $pdo = new \PDO($dsn, $user, $pass, $options);
+            $pdo_dsn = 'pgsql:host='.$host.';port='.$port.';dbname='.$database;
+            $pdo = new \PDO($pdo_dsn, $user, $pass, $options);
         } catch (PDOException $e) {
+            var_dump($e);
             die("cant connect to the database");
         }
     }
 
     return $pdo;
 }
-
 
 
 

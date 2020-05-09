@@ -42,7 +42,12 @@ function editUser($user, $attributes) {
 
     $pdo = getConnection();
     $newUser = array_merge($user, $attributes);
-    $password = password_hash($newUser['password'], PASSWORD_BCRYPT);
+
+    if (isset($attributes['password']))
+        $password = password_hash($newUser['password'], PASSWORD_BCRYPT);
+    else
+        $password = $user['password'];
+
     $statement = $pdo->prepare("update users set login = ?, password = ?, active = ?, image = ? where id = ?");
     $newUser['active'] = $newUser['active'] ?  'true' : 'false';
 

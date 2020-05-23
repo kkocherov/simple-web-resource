@@ -10,5 +10,8 @@
         "ext-mbstring": "*",
         "ext-json": "*",
         "ext-pdo": "*"
+    },
+    "autoload": {
+        "psr-4": {"pomidorki\\": "pomidorki/"}
     }
 }

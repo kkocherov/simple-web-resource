@@ -1,7 +1,12 @@
+<?php
+use pomidorki\User;
+/** @var User $user */
+?>
+
 <h1> User </h1>
 
-<div> login: <?php echo $user["login"]; ?> </div>
-<div> active: <?php echo $user["active"]; ?> </div>
-<div> uuid: <?php echo $user["id"]; ?> </div>
+<div> login: <?php echo $user->getLogin(); ?> </div>
+<div> active: <?php echo $user->getActive(); ?> </div>
+<div> uuid: <?php echo $user->getId(); ?> </div>
 
-<a href="/users/<?php echo $user["id"]; ?>/edit" class="btn btn-success">Edit</a>
+<a href="/users/<?php echo $user->getId(); ?>/edit" class="btn btn-success">Edit</a>

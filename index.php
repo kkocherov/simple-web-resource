@@ -2,6 +2,7 @@
 
 use pomidorki\Router;
 use pomidorki\NotFoundException;
+use pomidorki\UsersRepository;
 
 session_start();
 
@@ -14,10 +15,17 @@ $requestUri = $requestUri[0];
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $scriptAssets = [];
 
-
-include "db.php";
-include "users-controller.php";
 include "vendor/autoload.php";
+include "db.php";
+
+$usersRepository = new UsersRepository();
+
+$usersRepository->addListener(function($event, $data) {
+    error_log(print_r([$event, $data], true));
+});
+
+
+include "users-controller.php";
 
 
 function equals($thisValue) {

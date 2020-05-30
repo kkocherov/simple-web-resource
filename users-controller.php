@@ -1,5 +1,8 @@
 <?php
 
+use pomidorki\User;
+use pomidorki\UsersRepository;
+
 include "users-model.php";
 
 function usersAddress($page, $limit) {
@@ -20,7 +23,7 @@ if ($requestUri == "/users") {
     die();
 }
 
-function handleView($user) {
+function handleView(User $user) {
     $handleRequest = function() use ($user) {
         include "templates/userView.php";
     };
@@ -29,9 +32,9 @@ function handleView($user) {
     die();
 }
 
-function handleEdit($user) {
+function handleEdit(User $user) {
     $scriptAssets = ['/assets/js/users-edit.js'];
-    $userExists = isset($user["id"]);
+    $userExists = !is_null($user->getId());
     $handleRequest = function() use ($user, $userExists) {
         include "templates/userEdit.php";
     };
@@ -57,10 +60,12 @@ if ($requestUri == "/users/create") {
     handleCreate();
 }
 
+
 if (startsWith($requestUri, "/users/")) {
     $path = explode("/", $requestUri);
     $userId = $path[2];
     $user = getUser($userId);
+    $user = $usersRepository->getUser($userId);
 
     if (is_null($user)) {
         http_response_code(404);
@@ -106,7 +111,7 @@ if (startsWith($requestUri, "/api/users/")) {
 
     $path = explode("/", $requestUri);
     $userId = filter_var($path[count($path) - 1], FILTER_VALIDATE_INT);
-    $user = getUser($userId);
+    $user = $usersRepository->getUser($userId);
 
     if (is_null($user)) {
         http_response_code(404);
@@ -123,7 +128,6 @@ if (startsWith($requestUri, "/api/users/")) {
         $password = filter_var($_POST['password'] ,FILTER_SANITIZE_STRING);
         $isActive = filter_var($_POST['active'] ,FILTER_SANITIZE_STRING);
 
-        $attributes = [];
 
         if (!$_FILES["picture"]["error"] == UPLOAD_ERR_NO_FILE) {
             $folder = $uploadFolder;
@@ -131,22 +135,21 @@ if (startsWith($requestUri, "/api/users/")) {
             $file_path_exploded = explode("/", $file_path);
             $filename = $file_path_exploded[count($file_path_exploded) - 1];
             $file_url = "//$serverName/uploads/".$filename;
-            $attributes["image"] = $file_url;
+            $user->setPhoto($file_url);
         }
 
         if (!empty($login)) {
-            $attributes["login"] = $login;
+            $user->setLogin($login);
         }
 
         if (!empty($password)) {
-            $attributes["password"] = $password;
+            $user->setPassword($password);
         }
 
-        $attributes["active"] = $isActive == 'on';
-
+        $user->setActive($isActive == 'on');
 
         try {
-            editUser($user, $attributes);
+            $usersRepository->update($user);
         } catch (LengthException $exception) {
             die("Слишком короткий пароль");
         } catch (InvalidArgumentException $exception) {

@@ -1,8 +1,16 @@
+<?php
+
+use pomidorki\User;
+
+/** @var User $user */
+/** @var bool $userExists */
+
+?>
 <div class="container">
     <h1>User</h1>
     <form
         method="post"
-        action="/api/users<?= $userExists ?  "/".$user["id"] : "" ?>"
+        action="/api/users<?= $userExists ?  "/".$user->getId() : "" ?>"
         id="user-edit-form"
         data-user-exists="<?php echo $userExists; ?>"
         enctype="multipart/form-data"
@@ -11,13 +19,13 @@
         <?php if ($userExists): ?>
         <div class="form-group">
             <label for="user-id">id</label>
-            <input type="text" name="id" class="form-control" disabled id="user-id" value="<?php echo $user["id"]; ?>">
+            <input type="text" name="id" class="form-control" disabled id="user-id" value="<?php echo $user->getId(); ?>">
         </div>
         <?php endif; ?>
 
         <div class="form-group">
             <label for="exampleInputEmail1">Login</label>
-            <input type="email" name="login" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" value="<?php echo $user["login"]; ?>"  >
+            <input type="email" name="login" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" value="<?php echo $user->getLogin(); ?>"  >
             <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
         </div>
 
@@ -42,7 +50,7 @@
 
         <?php if ($userExists): ?>
         <div class="form-group form-check">
-            <input type="checkbox" name="active" class="form-check-input" id="exampleCheck1" <?php if ($user["active"]) echo "checked" ?>>
+            <input type="checkbox" name="active" class="form-check-input" id="exampleCheck1" <?php if ($user->getActive()) echo "checked" ?>>
             <label class="form-check-label" for="exampleCheck1">Active</label>
         </div>
         <?php endif; ?>

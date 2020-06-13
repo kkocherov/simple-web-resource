@@ -1,0 +1,4 @@
+vendor
+composer.lock
+Dockerfile.php
+Dockerfile.nginx
